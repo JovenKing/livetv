@@ -57,12 +57,16 @@ func IndexHandler(c *gin.Context) {
 		M3U8: baseUrl + "/lives.m3u",
 	}
 	for i, v := range channelModels {
+		proxy := false
+		if v.Proxy == 1 {
+			proxy = true
+		}
 		channels[i+1] = Channel{
 			ID:    v.ID,
 			Name:  v.Name,
 			URL:   v.URL,
 			M3U8:  baseUrl + "/live.m3u8?c=" + strconv.Itoa(int(v.ID)),
-			Proxy: v.Proxy,
+			Proxy: proxy,
 		}
 	}
 	conf, err := loadConfig()
@@ -74,15 +78,31 @@ func IndexHandler(c *gin.Context) {
 		return
 	}
 
-	var templateFilename string
-	if langTag == language.Chinese {
-		templateFilename = "index-zh.html"
-	} else {
-		templateFilename = "index.html"
+	channelInfo := new(Channel)
+	chID := util.String2Uint(c.Query("id"))
+	if chID != 0 {
+		channel, err := service.GetChannel(chID)
+		if err != nil {
+			log.Println(err.Error())
+			c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+				"ErrMsg": err.Error(),
+			})
+			return
+		}
+		proxy := false
+		if channel.Proxy == 1 {
+			proxy = true
+		}
+		channelInfo.ID = channel.ID
+		channelInfo.Name = channel.Name
+		channelInfo.URL = channel.URL
+		channelInfo.Proxy = proxy
 	}
-	c.HTML(http.StatusOK, templateFilename, gin.H{
-		"Channels": channels,
-		"Configs":  conf,
+
+	c.HTML(http.StatusOK, "index-zh.html", gin.H{
+		"Channels":      channels,
+		"Configs":       conf,
+		"UpdateChannel": channelInfo,
 	})
 }
 
@@ -116,13 +136,63 @@ func NewChannelHandler(c *gin.Context) {
 		c.Redirect(http.StatusFound, "/")
 		return
 	}
+	proxy := 2
 	chProxy := c.PostForm("proxy") != ""
+	if chProxy {
+		proxy = 1
+	}
 	mch := model.Channel{
 		Name:  chName,
 		URL:   chURL,
-		Proxy: chProxy,
+		Proxy: proxy,
 	}
 	err := service.SaveChannel(mch)
+	if err != nil {
+		log.Println(err.Error())
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"ErrMsg": err.Error(),
+		})
+		return
+	}
+	c.Redirect(http.StatusFound, "/")
+}
+
+func UpdateChannelHandler(c *gin.Context) {
+	if sessions.Default(c).Get("logined") != true {
+		c.Redirect(http.StatusFound, "/login")
+	}
+	chName := c.PostForm("name")
+	chURL := c.PostForm("url")
+	if chName == "" || chURL == "" {
+		c.Redirect(http.StatusFound, "/")
+		return
+	}
+	chID := util.String2Uint(c.PostForm("id"))
+	if chID == 0 {
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"ErrMsg": "empty id",
+		})
+		return
+	}
+	channel, err := service.GetChannel(chID)
+	if err != nil {
+		log.Println(err.Error())
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"ErrMsg": err.Error(),
+		})
+		return
+	}
+
+	proxy := 2
+	chProxy := c.PostForm("proxy") != ""
+	if chProxy {
+		proxy = 1
+	}
+	channel.Name = chName
+	channel.URL = chURL
+	channel.Proxy = proxy
+
+	err = service.UpdateChannel(channel)
 	if err != nil {
 		log.Println(err.Error())
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{

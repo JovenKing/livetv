@@ -22,7 +22,33 @@
           </h3>
         </div>
         <div class="panel-body">
-          <form role="form" action="/api/newchannel" method="POST">
+        {{if .UpdateChannel.ID}}
+          <form role="form" action="/api/updchannel" method="POST">
+           <div class="form-group">
+              <label for="inputChannelId">頻道ID</label>
+              <input type="text" class="form-control" id="inputChannelId" name="id" value="{{.UpdateChannel.ID}}">
+            </div>
+            <div class="form-group">
+              <label for="inputChannelName">頻道名稱</label>
+              <input type="text" class="form-control" id="inputChannelName" name="name" value="{{.UpdateChannel.Name}}">
+            </div>
+            <div class="form-group">
+              <label for="inputChannelLiveURL">直播URL</label>
+              <input type="text" class="form-control" id="inputChannelLiveURL" name="url" value="{{.UpdateChannel.URL}}">
+            </div>
+            <div class="checkbox">
+              <label>
+                {{ if .UpdateChannel.Proxy }}
+                  <input type="checkbox" name="proxy" checked>代理直播數據流
+                {{else}}
+                  <input type="checkbox" name="proxy">代理直播數據流
+                   {{end}}
+              </label>
+            </div>
+            <button type="submit" class="btn btn-default">更新頻道</button>
+          </form>
+          {{else}}
+            <form role="form" action="/api/newchannel" method="POST"> 
             <div class="form-group">
               <label for="inputChannelName">頻道名稱</label>
               <input type="text" class="form-control" id="inputChannelName" name="name">
@@ -33,11 +59,11 @@
             </div>
             <div class="checkbox">
               <label>
-                <input type="checkbox" name="proxy">代理直播數據流
-              </label>
+                  <input type="checkbox" name="proxy">代理直播數據流
             </div>
             <button type="submit" class="btn btn-default">添加頻道</button>
           </form>
+          {{end}}
         </div>
         <table class="table table-striped table-condensed">
           <tr>
@@ -55,7 +81,10 @@
               <td>{{.URL}}</td>
               <td>{{.M3U8}}</td>
               <td>{{ if .Proxy }}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{{ end }}</td>
-              <td><a href="/api/delchannel?id={{.ID}}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>
+              <td>
+              <a href="/?id={{.ID}}"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
+              <a href="/api/delchannel?id={{.ID}}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+              </td>
           </tr>
           {{end}}
         </table>

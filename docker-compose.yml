@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+  livetv:
+    image: livetv:latest
+    container_name: livetv
+    volumes:
+      - ./data:/root/data
+    restart:
+      always
+    ports:
+      - "127.0.0.1:9500:9000"

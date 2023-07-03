@@ -8,8 +8,8 @@ import (
 )
 
 var defaultConfigValue = map[string]string{
-	"ytdl_cmd":  "youtube-dl",
-	"ytdl_args": "-f best -g {url}",
+	"ytdl_cmd":  "yt-dlp",
+	"ytdl_args": "-g {url}",
 	"base_url":  "http://127.0.0.1:9000",
 	"password":  "password",
 }
