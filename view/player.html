@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LiveTV!</title>
+    <link href="/assert/css/bootstrap.min.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <link href="/assert/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.byted-static.com/xgplayer/3.0.1/dist/index.min.css">
+    <script type="text/javascript">
+      window.addEventListener('resize',function(){document.getElementById('playerDiv').style.height=window.innerHeight+'px';});
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>正在播放 <small>{{.Channel.Name}}</small></h1>
+      <div class="panel panel-primary">
+        <div id="playerDiv">
+
+        </div>
+      </div>
+      <footer class="text-center">
+        <a href="https://github.com/zjyl1994/livetv">LiveTV!</a> by <a href="https://github.com/zjyl1994">zjyl1994</a>.
+        Made with <span style="color: #e25555;">&hearts;</span> in Kwangtung.
+        <a href="/log">View Log.</a>
+        <a href="/api/logout">Logout.</a>
+      </footer>
+    </div>
+    <script src="/assert/js/jquery.min.js"></script>
+    <script src="/assert/js/bootstrap.min.js"></script>
+    <script src="/assert/js/bootbox.all.min.js"></script>
+    <script src="https://unpkg.byted-static.com/xgplayer/3.0.1/dist/index.min.js" charset="utf-8"></script>
+    <script src="//unpkg.byted-static.com/xgplayer-hls.js/3.0.0-alpha.1/dist/index.min.js" charset="utf-8"></script>
+    <script>
+        let player = new window.Player({
+            id: 'playerDiv',
+            url: {{.Channel.M3U8}}
+            isLive: true,
+            fluid: true,
+            autoplay: true,
+            playsinline: true,
+            height: window.innerHeight,
+            width: window.innerWidth,
+            plugins: [window.HlsJsPlugin]
+        });
+    </script>
+  </body>
+</html>

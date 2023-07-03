@@ -106,6 +106,37 @@ func IndexHandler(c *gin.Context) {
 	})
 }
 
+func PlayerHandler(c *gin.Context) {
+	if sessions.Default(c).Get("logined") != true {
+		c.Redirect(http.StatusFound, "/login")
+	}
+	baseUrl, err := service.GetConfig("base_url")
+	if err != nil {
+		log.Println(err.Error())
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"ErrMsg": err.Error(),
+		})
+		return
+	}
+	channelInfo := new(Channel)
+	chID := util.String2Uint(c.Query("id"))
+	if chID != 0 {
+		channel, err := service.GetChannel(chID)
+		if err != nil {
+			log.Println(err.Error())
+			c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+				"ErrMsg": err.Error(),
+			})
+			return
+		}
+		channelInfo.Name = channel.Name
+		channelInfo.M3U8 = baseUrl + "/live.m3u8?c=" + strconv.Itoa(int(channel.ID))
+	}
+	c.HTML(http.StatusOK, "player.html", gin.H{
+		"Channel": channelInfo,
+	})
+}
+
 func loadConfig() (Config, error) {
 	var conf Config
 	if cmd, err := service.GetConfig("ytdl_cmd"); err != nil {

@@ -14,6 +14,7 @@ func Register(r *gin.Engine) {
 	r.GET("/cache.txt", handler.CacheHandler)
 
 	r.GET("/", handler.IndexHandler)
+	r.GET("/player", handler.PlayerHandler)
 	r.POST("/api/newchannel", handler.NewChannelHandler)
 	r.GET("/api/delchannel", handler.DeleteChannelHandler)
 	r.POST("/api/updchannel", handler.UpdateChannelHandler)
